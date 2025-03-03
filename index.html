@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrakPay</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <h1>TrakPay</h1>
+      <label for="instructions" style="display: none;">Your Instructions:</label>
+      <textarea id="instructions" rows="4" placeholder="Enter your instructions for GPT-4 Vision..." style="display: none;">
+This is an invoice.
+
+Don't add any of your own words. 
+Don't add the ``` on start or end.
+
+Amount should not be Comma or Thousand separated. 
+Date should only be in DD-MMM-YYYY.
+
+Reproduce the invoice in a proper JSON format. Use only following keys,
+1. StoreName
+2. DateTime
+3. InvoiceNumber
+4. Currency (Symbol only)
+5. Items (Serial, Product, Price, Quantity, Amount)
+6. Sum (Figures, Words)</textarea>
+
+      <div class="upload-container">
+        <input type="file" id="image-upload" accept="image/*" hidden>
+        <label for="image-upload" class="upload-btn">
+          <span>Upload Invoice</span>
+        </label>
+      </div>
+
+      <div class="loading" id="loading">Analyzing...</div>
+
+      <div class="response" id="response"></div>
+    </div>
+    <div class="right-panel">
+      <div id="table-container"></div>
+    </div>
+  </div>
+
+  <script src="https://js.puter.com/v2/"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
