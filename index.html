@@ -1,53 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrakPay</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TrakPay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <div class="container">
-    <div class="left-panel">
-      <h1>TrakPay</h1>
-      <label for="instructions" style="display: none;">Your Instructions:</label>
-      <textarea id="instructions" rows="4" placeholder="Enter your instructions for GPT-4 Vision..." style="display: none;">
-This is an invoice.
+    <div class="app-container">
+        <header>
+            <div class="app-title">
+                <h1>TrakPay</h1>
+            </div>
+            <div class="search-wrapper">
+                <span class="material-icons search-icon">search</span>
+                <input type="text" placeholder="Search invoices..." id="searchInput" class="search-input">
+            </div>
+        </header>
 
-Don't add any of your own words. 
-Don't add the ``` on start or end.
+        <main>
+            <div id="homeView" class="content-view">
+                <!-- Cards will be populated here -->
+            </div>
+            <div id="addView" class="content-view" style="display: none;">
+                <div class="upload-box">
+                    <span class="material-icons upload-icon">cloud_upload</span>
+                    <p>Upload Invoice Image</p>
+                    <small>JPG, PNG supported</small>
+                </div>
+            </div>
+            <div id="settingsView" class="content-view" style="display: none;">
+                <h2>Settings</h2>
+                <div class="settings-content">
+                    <p>Settings will be available soon</p>
+                </div>
+            </div>
+        </main>
 
-Amount should not be Comma or Thousand separated. 
-Date should only be in DD-MMM-YYYY.
+        <!-- Table Modal -->
+        <div id="tableModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="table-container"></div>
+            </div>
+        </div>
 
-Reproduce the invoice in a proper JSON format. Use only following keys,
-1. StoreName
-2. DateTime
-3. InvoiceNumber
-4. Currency (Symbol only)
-5. Items (Serial, Product, Price, Quantity, Amount)
-6. Sum (Figures, Words)</textarea>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Processing image...</p>
+            </div>
+        </div>
 
-      <div class="upload-container">
-        <input type="file" id="image-upload" accept="image/*" hidden>
-        <label for="image-upload" class="upload-btn">
-          <span>Upload Invoice</span>
-        </label>
-      </div>
-
-      <div class="loading" id="loading">Analyzing...</div>
-
-      <div class="response" id="response"></div>
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-view="homeView">
+                <span class="material-icons">home</span>
+            </button>
+            <button class="nav-item fab" data-view="addView">
+                <span class="material-icons">add</span>
+            </button>
+            <button class="nav-item" data-view="settingsView">
+                <span class="material-icons">settings</span>
+            </button>
+        </nav>
     </div>
-    <div class="right-panel">
-      <div id="table-container"></div>
-    </div>
-  </div>
 
-  <script src="https://js.puter.com/v2/"></script>
-  <script src="script.js"></script>
+    <input type="file" id="image-upload" accept="image/*" hidden>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="script.js"></script>
 </body>
-
 </html>
