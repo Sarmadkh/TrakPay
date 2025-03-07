@@ -1,75 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrakPay</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrakPay</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <header>
-            <div class="app-title">
-                <h1>TrakPay</h1>
-            </div>
-            <div class="search-wrapper">
-                <span class="material-icons search-icon">search</span>
-                <input type="text" placeholder="Search invoices..." id="searchInput" class="search-input">
-            </div>
-        </header>
-
-        <main>
-            <div id="homeView" class="content-view">
-                <!-- Cards will be populated here -->
-            </div>
-            <div id="addView" class="content-view" style="display: none;">
-                <div class="upload-box">
-                    <span class="material-icons upload-icon">cloud_upload</span>
-                    <p>Upload Invoice Image</p>
-                    <small>JPG, PNG supported</small>
-                </div>
-            </div>
-            <div id="settingsView" class="content-view" style="display: none;">
-                <h2>Settings</h2>
-                <div class="settings-content">
-                    <p>Settings will be available soon</p>
-                </div>
-            </div>
-        </main>
-
-        <!-- Table Modal -->
-        <div id="tableModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <div id="table-container"></div>
-            </div>
+  <div class="app-container">
+    <!-- Header Section -->
+    <header>
+      <div class="header-container">
+        <div class="app-title">
+          <h1>TrakPay</h1>
         </div>
-
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay" class="loading-overlay">
-            <div class="loading-content">
-                <div class="spinner"></div>
-                <p>Processing image...</p>
-            </div>
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Search invoices...">
+          <button id="search-button"><i class="fas fa-search"></i></button>
         </div>
+      </div>
+    </header>
 
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-view="homeView">
-                <span class="material-icons">home</span>
-            </button>
-            <button class="nav-item fab" data-view="addView">
-                <span class="material-icons">add</span>
-            </button>
-            <button class="nav-item" data-view="settingsView">
-                <span class="material-icons">settings</span>
-            </button>
-        </nav>
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-chips">
+        <button class="filter-chip" data-filter="month">
+          <i class="fas fa-calendar"></i> Month
+        </button>
+        <button class="filter-chip" data-filter="category">
+          <i class="fas fa-tag"></i> Category
+        </button>
+        <button class="filter-chip" data-filter="store">
+          <i class="fas fa-store"></i> Store
+        </button>
+      </div>
+      <div class="filter-dropdown" id="filter-dropdown">
+        <!-- Will be populated dynamically -->
+      </div>
     </div>
 
-    <input type="file" id="image-upload" accept="image/*" hidden>
-    <script src="https://js.puter.com/v2/"></script>
-    <script src="script.js"></script>
+    <!-- Main Content Section -->
+    <main>
+      <div class="section-header">
+        <h2>Latest Invoices</h2>
+        <button class="see-more-btn" id="see-more-btn">See More</button>
+      </div>
+
+      <div class="invoices-grid" id="invoices-grid">
+        <!-- Will be populated dynamically -->
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <i class="fas fa-receipt"></i>
+        <p>No invoices yet! Upload your first invoice.</p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <p>Loading invoices...</p>
+      </div>
+    </main>
+
+    <!-- Processing Status (Shown when processing an image) -->
+    <div class="processing-status" id="processing-status">
+      <div class="processing-spinner"></div>
+      <p>Processing invoice...</p>
+    </div>
+    
+    <!-- File Upload Input (Hidden) -->
+    <input type="file" id="invoice-upload" accept="image/*" hidden>
+    
+    <!-- Hidden processing instructions -->
+    <textarea id="processing-instructions" rows="3" hidden>
+This is an invoice.
+
+Don't add any of your own words. 
+Don't add the ``` on start or end.
+Amounts should not be Comma or Thousand separated.
+Always double check if all the items are in your response.
+
+Reproduce the invoice in a proper JSON format. Use only following keys,
+1. StoreName
+2. Dated (DD-mmm-YYYY format. Don't add any time)
+3. InvoiceNumber
+4. Currency (Symbol only)
+5. Category (Healthcare, Groceries, Retail, Dining, Automotive, Utility, Misc)
+6. Items (Serial, Product, Price, Quantity, Amount)
+7. Sum (Figures, Words)
+    </textarea>
+    
+    <div class="invoice-preview" id="invoice-preview" hidden>
+      <!-- Will be populated when an invoice is processed -->
+    </div>
+
+    <!-- Invoice Details Modal -->
+    <div class="modal" id="invoice-details-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Invoice Details</h2>
+          <button class="close-btn" id="close-details-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body" id="invoice-details-content">
+          <!-- Will be populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-screen="home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn fab" id="add-btn">
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="nav-btn" data-screen="settings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <!-- Edit Invoice Modal -->
+<div class="modal" id="edit-invoice-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Invoice</h2>
+        <button class="close-btn" id="close-edit-modal-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-invoice-form">
+          <input type="hidden" id="edit-invoice-id">
+          
+          <div class="form-group">
+            <label for="edit-store-name">Store Name</label>
+            <input type="text" id="edit-store-name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-date">Date</label>
+            <input type="date" id="edit-date">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-invoice-number">Invoice Number</label>
+            <input type="text" id="edit-invoice-number">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-category">Category</label>
+            <select id="edit-category">
+              <option value="Healthcare">Healthcare</option>
+              <option value="Groceries">Groceries</option>
+              <option value="Retail">Retail</option>
+              <option value="Dining">Dining</option>
+              <option value="Automotive">Automotive</option>
+              <option value="Utility">Utility</option>
+              <option value="Misc">Misc</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Items</label>
+            <div id="edit-items-container">
+              <!-- Will be populated dynamically -->
+            </div>
+            <button type="button" id="add-item-btn" class="secondary-btn">
+              <i class="fas fa-plus"></i> Add Item
+            </button>
+          </div>
+          
+          <div class="form-group total-group">
+            <label for="edit-total-amount">Total Amount</label>
+            <input type="text" id="edit-total-amount" readonly>
+          </div>
+          
+          <div class="button-row">
+            <button type="submit" class="primary-btn" id="save-edit-btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <script src="https://js.puter.com/v2/"></script>
+  <script src="script.js"></script>
 </body>
 </html>
