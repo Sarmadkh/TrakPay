@@ -5,7 +5,7 @@ let filteredInvoices = [];
 let selectedFilter = null;
 let filterValue = null;
 let currentInvoiceData = null;
-let visibleInvoices = 6;
+let visibleInvoices = 4;
 
 // Helper functions
 const $ = id => document.getElementById(id);
@@ -59,6 +59,7 @@ const elements = {
   editInvoiceForm: $('edit-invoice-form'),
   closeEditModalBtn: $('close-edit-modal-btn'),
   saveEditBtn: $('save-edit-btn'),
+  processingOverlay: $('processing-overlay'),
 };
 
 // Initialize app
@@ -174,7 +175,7 @@ function performSearch() {
     filteredInvoices = [...invoices];
   } else {
     filteredInvoices = invoices.filter(invoice => {
-      return (invoice.StoreName && invoice.StoreName.toLowerCase().includes(query)) || 
+      return (invoice.StoreName && invoice.StoreName.toProperCase().includes(query)) || 
              (invoice.Items && Array.isArray(invoice.Items) && 
               invoice.Items.some(item => item.Product && 
                                  item.Product.toLowerCase().includes(query)));
@@ -327,7 +328,6 @@ function showEditInvoiceForm(invoice) {
       Items: items,
       Sum: {
         Figures: totalAmount,
-        Words: ''
       }
     };
     
@@ -378,7 +378,7 @@ function showFilterOptions(filterType) {
   const filterOptions = {
     month: getUniqueMonths(),
     category: getUniqueValues('Category'),
-    store: getUniqueValues('StoreName')
+    store: getUniqueValues('StoreName').map(store => store.toProperCase())
   };
   
   const options = filterOptions[filterType] || [];
@@ -428,7 +428,7 @@ function applyFilter(filterType, value) {
       return false;
     },
     category: invoice => invoice.Category === value,
-    store: invoice => invoice.StoreName === value
+    store: invoice => (invoice.StoreName).toProperCase() === value
   };
   
   filteredInvoices = invoices.filter(filterFunctions[filterType] || (() => true));
@@ -495,26 +495,30 @@ function createInvoiceCard(invoice) {
 
 // File Processing
 async function handleFileUpload(file) {
+  // Show overlay and spinner
+  elements.processingStatus.classList.add('visible');
+  elements.processingOverlay.classList.add('visible');
+
   if (!file.type.startsWith('image/')) {
     alert('Please upload an image file.');
     elements.processingStatus.classList.remove('visible');
+    elements.processingOverlay.classList.remove('visible');
     return;
   }
-  
+
   const reader = new FileReader();
   reader.onload = async (e) => {
     const base64Image = e.target.result.split(',')[1];
-    
+
     try {
       // Send to Puter.js for processing
       const response = await puter.ai.chat(
         elements.processingInstructions.value.trim() || 'Extract invoice details in JSON format.',
         `data:image/jpeg;base64,${base64Image}`
       );
-      
-      // Extract and parse JSON content
+
       const jsonContent = response?.message?.content || '';
-      
+
       try {
         currentInvoiceData = JSON.parse(jsonContent);
         saveInvoice();
@@ -527,9 +531,10 @@ async function handleFileUpload(file) {
       alert('Error processing image. Please try again.');
     } finally {
       elements.processingStatus.classList.remove('visible');
+      elements.processingOverlay.classList.remove('visible');
     }
   };
-  
+
   reader.readAsDataURL(file);
 }
 
@@ -624,10 +629,8 @@ function showInvoiceDetails(invoice) {
     const totalDiv = document.createElement('div');
     totalDiv.className = 'invoice-total';
     const amount = invoice.Sum.Figures || '0';
-    const amountWords = invoice.Sum.Words || '';
     totalDiv.innerHTML = `
       Total Amount: <strong>${formatCurrency(amount, invoice.Currency)}</strong>
-      ${amountWords ? `<div class="amount-words">(${(amountWords).toProperCase()})</div>` : ''}
     `;
     detailsView.appendChild(totalDiv);
   }
