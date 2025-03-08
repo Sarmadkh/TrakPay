@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
 </head>
+
 <body>
   <div class="app-container">
     <!-- Header Section -->
@@ -69,10 +71,10 @@
       <div class="processing-spinner"></div>
       <p>Processing invoice...</p>
     </div>
-    
+
     <!-- File Upload Input (Hidden) -->
     <input type="file" id="invoice-upload" accept="image/*" hidden>
-    
+
     <!-- Hidden processing instructions -->
     <textarea id="processing-instructions" rows="3" hidden>
 This is an invoice.
@@ -91,7 +93,7 @@ Reproduce the invoice in a proper JSON format. Use only following keys,
 6. Items (Serial, Product, Price, Quantity, Amount)
 7. Sum (Figures, Words)
     </textarea>
-    
+
     <div class="invoice-preview" id="invoice-preview" hidden>
       <!-- Will be populated when an invoice is processed -->
     </div>
@@ -100,11 +102,11 @@ Reproduce the invoice in a proper JSON format. Use only following keys,
     <div class="modal" id="invoice-details-modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>Invoice Details</h2>
+          <h2><!-- Store Name --></h2>
           <button class="close-btn" id="close-details-modal-btn">&times;</button>
         </div>
         <div class="modal-body" id="invoice-details-content">
-          <!-- Will be populated dynamically -->
+          <!-- Content populated dynamically -->
         </div>
       </div>
     </div>
@@ -125,70 +127,71 @@ Reproduce the invoice in a proper JSON format. Use only following keys,
     </nav>
 
     <!-- Edit Invoice Modal -->
-<div class="modal" id="edit-invoice-modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Edit Invoice</h2>
-        <button class="close-btn" id="close-edit-modal-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="edit-invoice-form">
-          <input type="hidden" id="edit-invoice-id">
-          
-          <div class="form-group">
-            <label for="edit-store-name">Store Name</label>
-            <input type="text" id="edit-store-name" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="edit-date">Date</label>
-            <input type="date" id="edit-date">
-          </div>
-          
-          <div class="form-group">
-            <label for="edit-invoice-number">Invoice Number</label>
-            <input type="text" id="edit-invoice-number">
-          </div>
-          
-          <div class="form-group">
-            <label for="edit-category">Category</label>
-            <select id="edit-category">
-              <option value="Healthcare">Healthcare</option>
-              <option value="Groceries">Groceries</option>
-              <option value="Retail">Retail</option>
-              <option value="Dining">Dining</option>
-              <option value="Automotive">Automotive</option>
-              <option value="Utility">Utility</option>
-              <option value="Misc">Misc</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Items</label>
-            <div id="edit-items-container">
-              <!-- Will be populated dynamically -->
+    <div class="modal" id="edit-invoice-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Invoice</h2>
+          <button class="close-btn" id="close-edit-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="edit-invoice-form">
+            <input type="hidden" id="edit-invoice-id">
+
+            <div class="form-group">
+              <label for="edit-store-name">Store Name</label>
+              <input type="text" id="edit-store-name" required>
             </div>
-            <button type="button" id="add-item-btn" class="secondary-btn">
-              <i class="fas fa-plus"></i> Add Item
-            </button>
-          </div>
-          
-          <div class="form-group total-group">
-            <label for="edit-total-amount">Total Amount</label>
-            <input type="text" id="edit-total-amount" readonly>
-          </div>
-          
-          <div class="button-row">
-            <button type="submit" class="primary-btn" id="save-edit-btn">Save Changes</button>
-          </div>
-        </form>
+
+            <div class="form-group">
+              <label for="edit-date">Date</label>
+              <input type="date" id="edit-date">
+            </div>
+
+            <div class="form-group">
+              <label for="edit-invoice-number">Invoice Number</label>
+              <input type="text" id="edit-invoice-number">
+            </div>
+
+            <div class="form-group">
+              <label for="edit-category">Category</label>
+              <select id="edit-category">
+                <option value="Healthcare">Healthcare</option>
+                <option value="Groceries">Groceries</option>
+                <option value="Retail">Retail</option>
+                <option value="Dining">Dining</option>
+                <option value="Automotive">Automotive</option>
+                <option value="Utility">Utility</option>
+                <option value="Misc">Misc</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Items</label>
+              <div id="edit-items-container">
+                <!-- Will be populated dynamically -->
+              </div>
+              <button type="button" id="add-item-btn" class="secondary-btn">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+
+            <div class="form-group total-group">
+              <label for="edit-total-amount">Total Amount</label>
+              <input type="text" id="edit-total-amount" readonly>
+            </div>
+
+            <div class="button-row">
+              <button type="submit" class="primary-btn" id="save-edit-btn">Save Changes</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
   </div>
 
   <script src="https://js.puter.com/v2/"></script>
   <script src="script.js"></script>
 </body>
+
 </html>
