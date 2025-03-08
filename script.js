@@ -5,7 +5,7 @@ let filteredInvoices = [];
 let selectedFilter = null;
 let filterValue = null;
 let currentInvoiceData = null;
-let visibleInvoices = 6; // Number of invoices to show initially
+let visibleInvoices = 6;
 
 // Helper functions
 const $ = id => document.getElementById(id);
@@ -63,7 +63,6 @@ const elements = {
 
 // Initialize app
 function initApp() {
-  // Load data and setup UI
   loadInvoices();
   renderInvoices();
   setupEventListeners();
@@ -112,10 +111,8 @@ function setupEventListeners() {
 
   // Filters
   elements.filterChips.forEach(chip => chip.addEventListener('click', toggleFilter));
-
   elements.closeEditModalBtn.addEventListener('click', () => 
-    elements.editInvoiceModal.classList.remove('visible'));
-  
+  elements.editInvoiceModal.classList.remove('visible'));
   elements.editInvoiceForm.addEventListener('submit', handleEditFormSubmit);
   
   // Window click to close edit modal
@@ -157,7 +154,6 @@ $('add-item-btn').addEventListener('click', () => {
       btn.addEventListener('click', () => {
         elements.navButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // You would handle screen changes here
       });
     }
   });
@@ -194,24 +190,18 @@ String.prototype.toProperCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
-// Edit
-
+// Edit Invoices
 function showEditInvoiceForm(invoice) {
-    // Hide the details modal and show edit modal
     elements.invoiceDetailsModal.classList.remove('visible');
-    
-    // Populate the form with invoice data
     const form = elements.editInvoiceForm;
     form.reset();
     
-    // Set form fields
     form.querySelector('#edit-invoice-id').value = invoice.id;
     form.querySelector('#edit-store-name').value = invoice.StoreName || '';
     form.querySelector('#edit-date').value = formatDateForInput(invoice.Dated) || '';
     form.querySelector('#edit-invoice-number').value = invoice.InvoiceNumber || '';
     form.querySelector('#edit-category').value = invoice.Category || 'Misc';
     
-    // Populate items
     const itemsContainer = form.querySelector('#edit-items-container');
     itemsContainer.innerHTML = '';
     
@@ -221,7 +211,6 @@ function showEditInvoiceForm(invoice) {
       });
     }
     
-    // Show edit modal
     elements.editInvoiceModal.classList.add('visible');
   }
   
@@ -248,7 +237,6 @@ function showEditInvoiceForm(invoice) {
       <button type="button" class="remove-item-btn"><i class="fas fa-times"></i></button>
     `;
     
-    // Add event listeners
     const priceInput = row.querySelector('.item-price');
     const qtyInput = row.querySelector('.item-quantity');
     const amountInput = row.querySelector('.item-amount');
@@ -339,7 +327,7 @@ function showEditInvoiceForm(invoice) {
       Items: items,
       Sum: {
         Figures: totalAmount,
-        Words: '' // Could add number-to-words conversion here
+        Words: ''
       }
     };
     
@@ -488,6 +476,7 @@ function createInvoiceCard(invoice) {
   const card = document.createElement('div');
   card.className = 'invoice-card';
   card.dataset.id = invoice.id;
+  card.dataset.category = invoice.Category || 'Misc'; // Add category data attribute
   
   const amount = invoice.Sum?.Figures || '0';
   const formattedDate = formatDate(invoice.Dated);
@@ -497,7 +486,6 @@ function createInvoiceCard(invoice) {
     <div class="invoice-body">
       <div class="invoice-info">${formattedDate}</div>
       <div class="invoice-amount">${formatCurrency(amount, invoice.Currency)}</div>
-      <div class="invoice-category ${invoice.Category}">${invoice.Category || 'Misc'}</div>
     </div>
   `;
   
@@ -548,37 +536,34 @@ async function handleFileUpload(file) {
 // Invoice Details
 function showInvoiceDetails(invoice) {
   if (!invoice) return;
-  
+
   const searchQuery = elements.searchInput.value.trim().toLowerCase();
   elements.invoiceDetailsContent.innerHTML = '';
-  
+
+  // Update modal header to show store name
+  elements.invoiceDetailsModal.querySelector('h2').textContent = (invoice.StoreName).toProperCase();
+
   const detailsView = document.createElement('div');
-  
-  // Store name
-  if (invoice.StoreName) {
-    const storeName = document.createElement('div');
-    storeName.className = 'store-name';
-    storeName.textContent = (invoice.StoreName).toProperCase();
-    detailsView.appendChild(storeName);
-  }
-  
-  // Invoice meta info
+
+  // Create action buttons first
+  const actionButtons = document.createElement('div');
+  actionButtons.className = 'action-buttons';
+  actionButtons.innerHTML = `
+    <button class="edit-btn" data-id="${invoice.id}"><i class="fas fa-edit"></i> Edit</button>
+    <button class="delete-btn" data-id="${invoice.id}"><i class="fas fa-trash"></i> Delete</button>
+  `;
+  detailsView.appendChild(actionButtons);
+
+  // Invoice meta info with category
   const metaInfo = document.createElement('div');
   metaInfo.className = 'invoice-meta';
   metaInfo.innerHTML = `
     <div><strong>Date:</strong> ${invoice.Dated || 'N/A'}</div>
     <div><strong>Invoice #:</strong> ${invoice.InvoiceNumber || 'N/A'}</div>
+    <div><strong>Category:</strong> ${invoice.Category || 'N/A'}</div>
   `;
   detailsView.appendChild(metaInfo);
-  
-  // Category badge
-  if (invoice.Category) {
-    const categoryBadge = document.createElement('div');
-    categoryBadge.className = `invoice-category ${invoice.Category}`;
-    categoryBadge.textContent = invoice.Category;
-    detailsView.appendChild(categoryBadge);
-  }
-  
+
   // Items table
   if (invoice.Items && Array.isArray(invoice.Items) && invoice.Items.length > 0) {
     const table = document.createElement('table');
@@ -642,36 +627,25 @@ function showInvoiceDetails(invoice) {
     const amountWords = invoice.Sum.Words || '';
     totalDiv.innerHTML = `
       Total Amount: <strong>${formatCurrency(amount, invoice.Currency)}</strong>
-      ${amountWords ? `<div class="amount-words">(${amountWords})</div>` : ''}
+      ${amountWords ? `<div class="amount-words">(${(amountWords).toProperCase()})</div>` : ''}
     `;
     detailsView.appendChild(totalDiv);
   }
+
+  // Add event listeners for the buttons
+  detailsView.querySelector('.edit-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    showEditInvoiceForm(invoice);
+  });
   
+  detailsView.querySelector('.delete-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    showDeleteConfirmation(invoice.id);
+  });
+
   elements.invoiceDetailsContent.appendChild(detailsView);
   elements.invoiceDetailsModal.classList.add('visible');
-
-    const actionButtons = document.createElement('div');
-    actionButtons.className = 'action-buttons';
-    actionButtons.innerHTML = `
-      <button class="edit-btn" data-id="${invoice.id}"><i class="fas fa-edit"></i> Edit</button>
-      <button class="delete-btn" data-id="${invoice.id}"><i class="fas fa-trash"></i> Delete</button>
-    `;
-    detailsView.appendChild(actionButtons);
-    
-    // Add event listeners for the buttons
-    actionButtons.querySelector('.edit-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      showEditInvoiceForm(invoice);
-    });
-    
-    actionButtons.querySelector('.delete-btn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      showDeleteConfirmation(invoice.id);
-    });
-    
-    elements.invoiceDetailsContent.appendChild(detailsView);
-    elements.invoiceDetailsModal.classList.add('visible');
-  }
+}
   
   // Add these new functions
   function showDeleteConfirmation(invoiceId) {
@@ -681,18 +655,12 @@ function showInvoiceDetails(invoice) {
   }
   
   function deleteInvoice(invoiceId) {
-    // Find the invoice index
     const index = invoices.findIndex(inv => inv.id === invoiceId);
     if (index !== -1) {
-      // Remove the invoice
       invoices.splice(index, 1);
-      // Save changes
       saveInvoices();
-      // Update the filtered list
       filteredInvoices = [...invoices];
-      // Close the details modal
       elements.invoiceDetailsModal.classList.remove('visible');
-      // Re-render the invoices
       renderInvoices();
       updateEmptyState();
     }
